@@ -1,28 +1,41 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Pokedex</title>
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <header>
-    <h1>Pokedéx</h1>
-    <div class="search-bar">
-      <input type="text" id="searchInput" placeholder="Pesquisar Pokémon...">
-      <button id="searchBtn">🔍</button>
+  <header class="header-grid">
+    <button id="menuBtn" class="hamburger" aria-label="Abrir menu">☰</button>
+
+    <!-- título central -->
+    <h1 class="site-title">Pokedéx</h1>
+
+    <div class="search-bar" role="search" aria-label="Pesquisar Pokémon">
+      <input id="searchInput" type="text" placeholder="Pesquisar Pokémon..." />
     </div>
   </header>
 
-  <main id="pokemonContainer">
-    <!-- Cards de pokemons aparecem aqui -->
+  <!-- menu lateral (off-canvas) -->
+  <nav id="sideMenu" class="side-menu" aria-hidden="true">
+    <h2>Menu</h2>
+    <ul>
+      <li><a href="#" id="menuPokemons">Pokémons</a></li>
+      <li><a href="#" id="menuLocalidades">Localidades</a></li>
+      <li><a href="#" id="menuItens">Itens</a></li>
+    </ul>
+  </nav>
+
+  <main id="pokemonContainer" role="main">
+    <!-- cards vão aqui -->
   </main>
 
-  <!-- Modal para detalhes -->
-  <div id="pokemonModal" class="modal">
-    <div class="modal-content">
-      <span id="closeModal">&times;</span>
+  <!-- modal (centrado com flex) -->
+  <div id="pokemonModal" class="modal" aria-hidden="true">
+    <div class="modal-content" role="dialog" aria-modal="true">
+      <button id="closeModal" class="close-btn" aria-label="Fechar">×</button>
       <div id="modalDetails"></div>
     </div>
   </div>
