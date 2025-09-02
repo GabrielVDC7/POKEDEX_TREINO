@@ -7,16 +7,19 @@
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <header class="header-grid">
-    <button id="menuBtn" class="hamburger" aria-label="Abrir menu">☰</button>
-
-    <!-- título central -->
-    <h1 class="site-title">Pokedéx</h1>
-
-    <div class="search-bar" role="search" aria-label="Pesquisar Pokémon">
-      <input id="searchInput" type="text" placeholder="Pesquisar Pokémon..." />
-    </div>
-  </header>
+    <header class="header-grid">
+        <button id="menuBtn" class="hamburger" aria-label="Abrir menu">☰</button>
+    
+        <!-- título central substituído por imagem -->
+        <div class="site-title">
+            <img src="icon.png" alt="Logo Pokedex" />
+        </div>
+    
+        <div class="search-bar" role="search" aria-label="Pesquisar Pokémon">
+          <input id="searchInput" type="text" placeholder="Pesquisar Pokémon..." />
+        </div>
+    </header>
+    
 
   <!-- menu lateral (off-canvas) -->
   <nav id="sideMenu" class="side-menu" aria-hidden="true">

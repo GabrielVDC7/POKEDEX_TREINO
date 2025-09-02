@@ -4,8 +4,8 @@
    * { margin: 0; padding: 0; box-sizing: border-box; }
    html { font-size: 16px; scroll-behavior: smooth; }
    body {
-     font-family: Arial, Helvetica, sans-serif;
-     background-color: #c6f68d; /* verde-lima */
+     font-family: 'Clear Sans', Arial, Helvetica, sans-serif;
+     background-color: #ffffff;
      color: #333;
      min-height: 100vh;
      display: flex;
@@ -20,7 +20,7 @@
      grid-template-columns: 48px 1fr 300px;
      align-items: center;
      gap: 12px;
-     background-color: #2e7d32;
+     background-color: #c62828; /* vermelho */
      color: white;
      padding: 12px 16px;
      position: relative;
@@ -36,12 +36,12 @@
      padding: 6px;
    }
    
-   /* título centralizado */
-   .site-title {
-     justify-self: center; /* fica no centro da grid */
-     font-size: 1.6rem;
-     font-weight: 700;
-     letter-spacing: .6px;
+   /* título centralizado como imagem */
+   .site-title img {
+     width: 120px; /* ajuste conforme necessário */
+     height: auto;
+     justify-self: center;
+     margin-left: 40px;
    }
    
    /* search alinhado à direita */
@@ -50,7 +50,6 @@
      display: flex;
      align-items: center;
    }
-   
    .search-bar input {
      padding: 8px 10px;
      border-radius: 6px;
@@ -68,28 +67,37 @@
      left: 0;
      height: 100%;
      width: 250px;
-     transform: translateX(-110%); /* escondido */
-     background: #1b5e20;
+     transform: translateX(-110%);
+     background: #b71c1c; /* vermelho escuro */
      color: #fff;
      padding: 20px;
      transition: transform .28s ease;
      z-index: 300;
      box-shadow: 2px 0 12px rgba(0,0,0,0.25);
    }
+   .side-menu.active { transform: translateX(0); }
    
-   .side-menu.active {
-     transform: translateX(0);
+   .side-menu h2 { 
+     margin-bottom: 12px; 
+     font-size: 1.1rem; 
+     border-bottom: 1px solid white; /* borda entre título e itens */
+     padding-bottom: 4px;
    }
    
-   .side-menu h2 { margin-bottom: 12px; font-size: 1.1rem; }
    .side-menu ul { list-style: none; }
-   .side-menu li { margin: 10px 0; }
+   
+   .side-menu li { 
+     margin: 10px 0; 
+     border-bottom: 1px solid white; /* borda branca entre itens */
+     padding: 6px 0;
+   }
+   
    .side-menu a {
      color: white;
      text-decoration: none;
      font-size: 1rem;
    }
-   .side-menu a:hover { color: #c6f68d; }
+   .side-menu a:hover { color: #ffebee; }
    
    /* ======================
       MAIN & CARDS
@@ -129,17 +137,15 @@
       MODAL (CENTRALIZADO)
       ====================== */
    .modal {
-     display: none; /* ativado via .open */
+     display: none;
      position: fixed;
-     inset: 0; /* top/right/bottom/left 0 */
+     inset: 0;
      background: rgba(0,0,0,.6);
      align-items: center;
      justify-content: center;
      z-index: 500;
    }
-   
    .modal.open { display: flex; }
-   
    .modal-content {
      background: #fff;
      width: 90%;
@@ -151,12 +157,10 @@
      animation: popIn .22s ease;
      text-align: center;
    }
-   
    @keyframes popIn {
      from { opacity: 0; transform: translateY(-14px) scale(.98); }
      to { opacity: 1; transform: translateY(0) scale(1); }
    }
-   
    .close-btn {
      position: absolute;
      top: 8px;
@@ -171,7 +175,7 @@
       FOOTER (opcional)
       ====================== */
    footer {
-     background: #2e7d32;
+     background: #c62828; /* vermelho */
      color: white;
      text-align: center;
      padding: 10px;
@@ -187,11 +191,20 @@
      .search-bar input { width: 120px; }
      #pokemonContainer { grid-template-columns: repeat(auto-fill, minmax(120px,1fr)); }
    }
-   /* título mais centralizado */
-.site-title {
+   
+   /* ======================
+      TAGS DE TIPO
+      ====================== */
+   .type-tag {
+     display: inline-block;
+     padding: 2px 8px;
+     border-radius: 12px;
+     color: #fff;
+     font-size: 0.75rem;
+     margin: 2px;
+   }
+   .site-title img {
+    width: 130px; /* ajuste conforme necessário */
+    height: auto;
     justify-self: center;
-    margin-left: 40px; /* puxa um pouco para a direita */
-    font-size: 1.6rem;
-    font-weight: 700;
-    letter-spacing: .6px;
-  }
+}
