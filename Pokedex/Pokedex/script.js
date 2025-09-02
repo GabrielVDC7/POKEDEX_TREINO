@@ -36,23 +36,44 @@ let arceusInterval = null; // Intervalo para animação de Arceus
 // ----------------------
 const typeColors = {
   normal: "#a8a878",
-  fogo: "#f08030",
-  água: "#6890f0",
-  grama: "#78c850",
-  elétrico: "#f8d030",
-  gelo: "#98d8d8",
-  lutador: "#c03028",
-  voador: "#a890f0",
-  venenoso: "#a040a0",
-  terrestre: "#e0c068",
-  pedra: "#b8a038",
-  psíquico: "#f85888",
-  inseto: "#a8b820",
-  fantasma: "#705898",
-  metal: "#b8b8d0",
-  dragão: "#7038f8",
-  sombrio: "#705848",
-  fada: "#ffaec9"
+  fighting: "#c03028",
+  flying: "#a890f0",
+  poison: "#a040a0",
+  ground: "#e0c068",
+  rock: "#b8a038",
+  bug: "#a8b820",
+  ghost: "#705898",
+  steel: "#b8b8d0",
+  fire: "#f08030",
+  water: "#6890f0",
+  grass: "#78c850",
+  electric: "#f8d030",
+  psychic: "#f85888",
+  ice: "#98d8d8",
+  dragon: "#7038f8",
+  dark: "#705848",
+  fairy: "#ffaec9"
+};
+
+const typeTranslations = {
+  normal: "Normal",
+  fighting: "Lutador",
+  flying: "Voador",
+  poison: "Venenoso",
+  ground: "Terrestre",
+  rock: "Pedra",
+  bug: "Inseto",
+  ghost: "Fantasma",
+  steel: "Metal",
+  fire: "Fogo",
+  water: "Água",
+  grass: "Grama",
+  electric: "Elétrico",
+  psychic: "Psíquico",
+  ice: "Gelo",
+  dragon: "Dragão",
+  dark: "Sombrio",
+  fairy: "Fada"
 };
 
 const arceusTypes = Object.keys(typeColors);
@@ -92,13 +113,14 @@ modal.addEventListener("click", (e) => { if (e.target === modal) closeModalFunc(
 // FUNÇÕES DE TAGS
 // ----------------------
 function getTypeTags(types, pokemonName) {
-  if (pokemonName.toLowerCase() === "arceus") {
+  if (pokemonName && pokemonName.toLowerCase() === "arceus") {
     return `<span class="type-tag" id="arceusType">Deus</span>`;
   }
   return types.map(t => {
-    const typeName = t.type.name.toLowerCase();
+    const typeName = typeof t === 'string' ? t.toLowerCase() : t.type.name.toLowerCase();
+    const translatedName = typeTranslations[typeName] || capitalize(typeName);
     const color = typeColors[typeName] || "#777";
-    return `<span class="type-tag" style="background:${color};">${capitalize(typeName)}</span>`;
+    return `<span class="type-tag" style="background:${color};">${translatedName}</span>`;
   }).join(" ");
 }
 
@@ -177,20 +199,50 @@ async function loadItens() {
   }
 }
 
+// ALTERAÇÃO AQUI: Lógica corrigida para carregar a geração das localidades
 async function loadLocalidades() {
   currentType = "location";
   pokemonContainer.innerHTML = "<p>Carregando Localidades...</p>";
-  const res = await fetch(`https://pokeapi.co/api/v2/location?limit=1000`);
-  const data = await res.json();
+  try {
+    const res = await fetch(`https://pokeapi.co/api/v2/location?limit=1000`);
+    if (!res.ok) throw new Error(`Erro HTTP: ${res.status}`);
+    const data = await res.json();
 
-  allData = data.results.map((loc, idx) => ({
-    id: idx + 1,
-    name: loc.name,
-    url: loc.url,
-    generation: "Desconhecida"
-  }));
+    const promises = data.results.map(async (loc, idx) => {
+      try {
+        const locationData = await fetch(loc.url).then(r => r.json());
+        const regionUrl = locationData.region?.url;
+        let generationName = "Desconhecida";
 
-  displayCards(allData);
+        if (regionUrl) {
+          const regionData = await fetch(regionUrl).then(r => r.json());
+          generationName = regionData.main_generation.name.replace("generation-", "").toUpperCase();
+        }
+
+        return {
+          id: idx + 1,
+          name: loc.name,
+          url: loc.url,
+          generation: generationName
+        };
+      } catch (err) {
+        console.warn(`Falha ao carregar detalhes da localidade ${loc.name}:`, err);
+        return {
+          id: idx + 1,
+          name: loc.name,
+          url: loc.url,
+          generation: "Desconhecida"
+        };
+      }
+    });
+
+    allData = await Promise.all(promises);
+    displayCards(allData);
+
+  } catch (err) {
+    console.error("Erro ao carregar lista de Localidades:", err);
+    pokemonContainer.innerHTML = "<p style='padding:20px'>Erro ao carregar Localidades.</p>";
+  }
 }
 
 async function loadMoves() {
@@ -243,6 +295,7 @@ async function loadMoves() {
   }
 }
 
+// ALTERAÇÃO AQUI: Lógica corrigida para carregar a geração dos games
 async function loadGames() {
   currentType = "game";
   pokemonContainer.innerHTML = "<p>Carregando Games...</p>";
@@ -255,12 +308,18 @@ async function loadGames() {
         const gameRes = await fetch(g.url);
         if (!gameRes.ok) throw new Error(`Erro HTTP: ${gameRes.status}`);
         const gameData = await gameRes.json();
-
+        
+        const generationRes = await fetch(gameData.version_group.url);
+        if(!generationRes.ok) throw new Error(`Erro HTTP: ${generationRes.status}`);
+        const generationData = await generationRes.json();
+        
+        const genName = generationData.generation.name.replace("generation-", "").toUpperCase();
+        
         return {
           id: idx + 1,
           name: g.name,
           url: g.url,
-          generation: gameData.generation?.name.replace("generation-", "").toUpperCase() || "Desconhecida"
+          generation: genName || "Desconhecida"
         };
       } catch (err) {
         console.warn("Falha ao carregar game:", g.name, err);
@@ -327,7 +386,7 @@ function displayCards(list) {
     } else if (currentType === "move") {
       card.innerHTML = `
         <h3>#${item.id} - ${capitalize(item.name)}</h3>
-        <p class="tag-types">Tipo: ${capitalize(item.type)}</p>
+        <p class="tag-types">${getTypeTags([item.type])}</p>
         <p class="generation">Geração: ${item.generation}</p>
       `;
       card.addEventListener("click", () => showMoveDetails(item));
@@ -335,6 +394,7 @@ function displayCards(list) {
     } else if (currentType === "game") {
       card.innerHTML = `
         <h3>#${item.id} - ${capitalize(item.name)}</h3>
+        <p>Jogo Pokemon</p>
         <p class="generation">Geração: ${item.generation}</p>
       `;
       card.addEventListener("click", () => showGameDetails(item));
@@ -364,7 +424,7 @@ function showPokemonDetails(pokemon) {
   modalDetails.innerHTML = `
     <h2>#${pokemon.id} - ${capitalize(pokemon.name)}</h2>
     ${artwork ? `<img src="${artwork}" alt="${pokemon.name}" style="max-width:220px;">` : ""}
-    <p><strong>Tipo:</strong> ${pokemon.types.map(t => capitalize(t.type.name)).join(", ")}</p>
+    <p><strong>Tipo:</strong> ${pokemon.types.map(t => typeTranslations[t.type.name.toLowerCase()] || capitalize(t.type.name)).join(", ")}</p>
     <p><strong>Altura:</strong> ${pokemon.height / 10} m</p>
     <p><strong>Peso:</strong> ${pokemon.weight / 10} kg</p>
     <p><strong>Lendário:</strong> ${pokemon.isLegendary ? "✅ Sim" : "❌ Não"}</p>
@@ -390,22 +450,28 @@ function showItemDetails(item) {
 
 async function showLocationDetails(loc) {
   modalDetails.innerHTML = "<p>Carregando...</p>";
-  const res = await fetch(loc.url);
-  const data = await res.json();
+  try {
+    const res = await fetch(loc.url);
+    const data = await res.json();
+    const regionName = data.region?.name ? capitalize(data.region.name) : "Desconhecida";
 
-  modalDetails.innerHTML = `
-    <h2>#${loc.id} - ${capitalize(loc.name)}</h2>
-    <p><strong>Região:</strong> ${data.region?.name || "Desconhecida"}</p>
-    <p><strong>Áreas:</strong> ${data.areas?.map(a => capitalize(a.name)).join(", ") || "Nenhuma"}</p>
-    <p><strong>Geração:</strong> ${loc.generation}</p>
-  `;
-  openModal();
+    modalDetails.innerHTML = `
+      <h2>#${loc.id} - ${capitalize(loc.name)}</h2>
+      <p><strong>Região:</strong> ${regionName}</p>
+      <p><strong>Áreas:</strong> ${data.areas?.map(a => capitalize(a.name)).join(", ") || "Nenhuma"}</p>
+      <p><strong>Geração:</strong> ${loc.generation}</p>
+    `;
+    openModal();
+  } catch(err) {
+    modalDetails.innerHTML = "<p>Erro ao carregar detalhes da localidade.</p>";
+    console.error("Erro ao carregar detalhes da localidade:", err);
+  }
 }
 
 function showMoveDetails(move) {
   modalDetails.innerHTML = `
     <h2>#${move.id} - ${capitalize(move.name)}</h2>
-    <p><strong>Tipo:</strong> ${capitalize(move.type)}</p>
+    <p><strong>Tipo:</strong> ${typeTranslations[move.type.toLowerCase()] || capitalize(move.type)}</p>
     <p><strong>Power:</strong> ${move.power}</p>
     <p><strong>PP:</strong> ${move.pp}</p>
     <p><strong>Accuracy:</strong> ${move.accuracy}</p>
